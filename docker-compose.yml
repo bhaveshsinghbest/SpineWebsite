@@ -1,0 +1,53 @@
+# Production-like stack: PostgreSQL + API + website. Secrets come from a .env file next to this one
+# (see deploy/.env.example). Put Nginx (deploy/nginx.conf) or a managed load balancer in front for HTTPS.
+#   docker compose up -d --build
+#   docker compose run --rm api npm run db:setup     # first time only: migrations + content
+services:
+  db:
+    image: postgres:18-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: spine_advisory
+      POSTGRES_USER: spine_app
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+    volumes:
+      - pgdata:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U spine_app -d spine_advisory"]
+      interval: 10s
+      retries: 5
+
+  api:
+    build: { context: ., dockerfile: backend/Dockerfile }
+    restart: unless-stopped
+    depends_on: { db: { condition: service_healthy } }
+    environment:
+      NODE_ENV: production
+      PORT: 4000
+      DATABASE_URL: postgres://spine_app:${POSTGRES_PASSWORD}@db:5432/spine_advisory
+      PUBLIC_SITE_URL: ${PUBLIC_SITE_URL:-https://spineadvisory.com}
+      COOKIE_SECURE: "true"
+      TRUST_PROXY: 2
+      SMTP_HOST: ${SMTP_HOST:-}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASS: ${SMTP_PASS:-}
+      MAIL_FROM: ${MAIL_FROM:-Spine Advisory Website <no-reply@spineadvisory.com>}
+      NOTIFY_ENQUIRIES_TO: ${NOTIFY_ENQUIRIES_TO:-info@spineadvisory.com}
+      NOTIFY_APPLICATIONS_TO: ${NOTIFY_APPLICATIONS_TO:-info@spineadvisory.com}
+    volumes:
+      - uploads:/app/backend/uploads
+
+  web:
+    build: { context: ., dockerfile: frontend/Dockerfile }
+    restart: unless-stopped
+    depends_on: [api]
+    environment:
+      API_INTERNAL_URL: http://api:4000
+      TRUST_PROXY: 1
+    ports:
+      - "127.0.0.1:4200:4200"
+
+volumes:
+  pgdata:
+  uploads:

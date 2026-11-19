@@ -1,0 +1,94 @@
+:host {
+  position: fixed;
+  inset: 0 0 auto;
+  z-index: 50;
+  display: block;
+  transition: box-shadow 300ms ease;
+}
+:host(.is-scrolled) { box-shadow: var(--shadow-lift); }
+
+
+.mainbar {
+  background: rgb(255 255 255 / 0.95);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+.mainbar-inner { height: 5rem; }
+.logo { height: 2.25rem; width: auto; }
+.brand-name { font-size: 19px; font-weight: 600; line-height: 1; letter-spacing: -0.025em; color: var(--c-navy); }
+.brand-sub { font-size: 9px; }
+
+.nav-link-spine {
+  position: relative;
+  color: var(--c-ink-2);
+  transition: color 150ms ease;
+  &:hover, &.is-active { color: var(--c-navy); }
+  &::after {
+    content: '';
+    position: absolute;
+    left: 0.5rem;
+    right: 0.5rem;
+    bottom: 0.2rem;
+    height: 2px;
+    background: var(--c-amber);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 200ms ease;
+  }
+  &.is-active::after { transform: scaleX(1); }
+}
+.chevron { transition: transform 200ms ease; }
+
+.dropdown-panel {
+  position: absolute;
+  left: 0;
+  top: 100%;
+  padding-top: 0.5rem;
+  visibility: hidden;
+  opacity: 0;
+  transform: translateY(0.25rem);
+  transition: all 200ms ease;
+}
+.nav-item:hover, .nav-item:focus-within {
+  .dropdown-panel { visibility: visible; opacity: 1; transform: none; }
+  .nav-link-spine::after { transform: scaleX(1); }
+  .chevron { transform: rotate(180deg); }
+}
+.dropdown-list { min-width: 20rem; }
+.dropdown-link {
+  color: var(--c-ink-2);
+  &:hover, &.current { background: var(--c-mist); color: var(--c-navy); }
+}
+.hint { font-size: 12px; }
+
+.menu-btn { height: 2.5rem; width: 2.5rem; }
+
+/* Small Admin Login button (top-right on every screen size). */
+.admin-btn {
+  height: 2.25rem;
+  padding: 0 0.7rem;
+  font-size: 0.8125rem;
+  color: var(--c-ink-2);
+  background: #fff;
+  border-color: var(--c-line-strong) !important;
+  white-space: nowrap;
+  transition: color 150ms ease, border-color 150ms ease, background 150ms ease;
+  &:hover, &:focus-visible { color: var(--c-navy); border-color: var(--c-navy) !important; background: var(--c-mist); }
+}
+/* Desktop: the full menu needs the room, so the button shows only its icon (the label stays for screen readers). */
+@media (min-width: 1280px) {
+  .admin-btn { width: 2.25rem; padding: 0; justify-content: center; }
+  .admin-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+}
+
+.drawer-backdrop { position: fixed; inset: 0; z-index: 50; background: rgb(10 25 47 / 0.4); }
+.drawer { max-width: 24rem; animation: slide-in 220ms ease-out; }
+.drawer-head { height: 4rem; }
+
+/* Menu labels and the Contact button never wrap onto two lines. */
+.nav-link-spine, .btn-compact { white-space: nowrap; }
+/* Between 1280 and 1365 px the full menu leaves no room for the text beside the logo (the logo already reads
+   "Spine Advisory"), so it is hidden there; it shows on wider screens and on tablets and phones. */
+@media (min-width: 1280px) and (max-width: 1365.98px) {
+  .brand-text { display: none !important; }
+}

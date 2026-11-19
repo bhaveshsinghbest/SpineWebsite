@@ -1,0 +1,21 @@
+// Global stylesheet for the public website: Bootstrap 5 (configured with the brand tokens) + brand components.
+@import 'bootstrap/scss/functions';
+@import 'styles/variables';
+@import 'bootstrap/scss/variables';
+@import 'bootstrap/scss/variables-dark';
+@import 'bootstrap/scss/maps';
+@import 'bootstrap/scss/mixins';
+@import 'bootstrap/scss/utilities';
+
+@import 'bootstrap/scss/root';
+@import 'bootstrap/scss/reboot';
+@import 'bootstrap/scss/grid';
+@import 'bootstrap/scss/forms';
+@import 'bootstrap/scss/buttons';
+@import 'bootstrap/scss/helpers';
+@import 'bootstrap/scss/utilities/api';
+
+@import 'styles/base';
+@import 'styles/components';
+@import 'styles/utilities';
+@import 'styles/motion';

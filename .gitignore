@@ -1,0 +1,19 @@
+node_modules/
+dist/
+.angular/
+coverage/
+*.log
+.env
+.env.*
+!.env.example
+!deploy/.env.example
+# Embedded development database and runtime files
+backend/.data/
+backend/uploads/public/*
+backend/uploads/private/*
+!backend/uploads/**/.gitkeep
+database/backups/
+tests/output/
+tests/a11y-report.txt
+.DS_Store
+Thumbs.db

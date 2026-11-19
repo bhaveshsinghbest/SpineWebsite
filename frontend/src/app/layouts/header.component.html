@@ -1,0 +1,98 @@
+<div class="mainbar border-bottom">
+  <div class="wrap d-flex align-items-center justify-content-between gap-5 mainbar-inner">
+    <a routerLink="/" class="d-flex flex-shrink-0 align-items-center gap-3">
+      <img [src]="site().company.logoUrl || '/assets/brand/logo.png'" [alt]="site().company.name + ' home'" class="logo" width="247" height="99" />
+      <span class="brand-text d-none d-sm-flex flex-column border-start ps-3">
+        <span class="brand-name">SPINE ADVISORY</span>
+        <span class="eyebrow mt-1 brand-sub text-muted">Public &amp; Enterprise Advisory</span>
+      </span>
+    </a>
+
+    <nav class="d-none d-xl-flex align-items-center gap-0h" aria-label="Primary">
+      @for (m of menus(); track m.href) {
+        <div class="nav-item position-relative">
+          <a [routerLink]="m.href" class="nav-link-spine d-flex align-items-center gap-1 rounded px-2 py-2 fs-sm fw-medium"
+             [class.is-active]="isActive(m.href)" [attr.aria-current]="isActive(m.href) ? 'page' : null" [attr.aria-haspopup]="m.children ? 'true' : null">
+            {{ m.label }}
+            @if (m.children) { <span icon="expand_more" [size]="16" class="text-muted chevron"></span> }
+          </a>
+          @if (m.children) {
+            <div class="dropdown-panel">
+              <ul class="card dropdown-list p-2 shadow-overlay">
+                @for (l of m.children; track l.href) {
+                  <li>
+                    <a [routerLink]="l.href" class="dropdown-link d-flex align-items-center gap-3 rounded px-3 py-2h fs-sm"
+                       [class.current]="isCurrent(l.href)" [attr.aria-current]="isCurrent(l.href) ? 'page' : null">
+                      @if (l.icon) { <span class="icon-tile square-8 bg-mist text-cobalt"><span [icon]="l.icon" [size]="18"></span></span> }
+                      <span>
+                        <span class="d-block fw-medium">{{ l.label }}</span>
+                        @if (l.hint) { <span class="d-block hint text-muted">{{ l.hint }}</span> }
+                      </span>
+                    </a>
+                  </li>
+                }
+              </ul>
+            </div>
+          }
+        </div>
+      }
+    </nav>
+
+    <div class="d-flex align-items-center gap-2">
+      <a [routerLink]="contact().href" class="btn btn-primary btn-compact d-none d-sm-inline-flex" [attr.aria-current]="isActive(contact().href) ? 'page' : null">
+        <span icon="call" [size]="16"></span> {{ contact().label }}
+      </a>
+      <a routerLink="/admin/login" class="admin-btn d-inline-flex align-items-center gap-1 rounded border fw-medium" aria-label="Admin login" title="Admin login">
+        <span icon="lock" [size]="15"></span><span class="admin-label">Admin</span>
+      </a>
+      <button #openBtn type="button" class="menu-btn d-flex d-xl-none align-items-center justify-content-center rounded border text-navy"
+              aria-label="Open menu" aria-controls="mobile-menu" [attr.aria-expanded]="open()" (click)="setOpen(true)">
+        <span icon="menu" [size]="22"></span>
+      </button>
+    </div>
+  </div>
+</div>
+
+@if (open()) {
+  <div id="mobile-menu" class="drawer-backdrop d-xl-none" role="dialog" aria-modal="true" aria-label="Menu" (click)="backdropClick($event)">
+    <div class="drawer ms-auto d-flex h-100 w-100 flex-column overflow-auto bg-white shadow-overlay">
+      <div class="d-flex flex-shrink-0 align-items-center justify-content-between border-bottom px-5 drawer-head">
+        <span class="fw-semibold text-navy">Menu</span>
+        <button #closeBtn type="button" class="menu-btn d-flex align-items-center justify-content-center rounded border" aria-label="Close menu" (click)="setOpen(false)">
+          <span icon="close" [size]="22"></span>
+        </button>
+      </div>
+      <nav class="flex-1 px-5 py-2" aria-label="Mobile">
+        @for (m of nav(); track m.href) {
+          @if (m.children) {
+            <details class="border-bottom" [open]="isActive(m.href)">
+              <summary class="d-flex no-marker align-items-center justify-content-between py-4 fs-base fw-semibold text-navy">
+                {{ m.label }}
+                <span icon="expand_more" [size]="22" class="text-muted open-rotate"></span>
+              </summary>
+              <ul class="d-grid gap-0h pb-3">
+                @for (l of m.children; track l.href) {
+                  <li>
+                    <a [routerLink]="l.href" class="d-flex align-items-center gap-2 rounded py-2 ps-3 fs-sm hover-mist hover-navy" [class.bg-mist]="isCurrent(l.href)" [class.text-navy]="isCurrent(l.href)" [class.text-ink-2]="!isCurrent(l.href)">
+                      @if (l.icon) { <span [icon]="l.icon" [size]="16" class="text-cobalt"></span> }{{ l.label }}
+                    </a>
+                  </li>
+                }
+              </ul>
+            </details>
+          } @else {
+            <a [routerLink]="m.href" class="d-flex align-items-center justify-content-between border-bottom py-4 fs-base fw-semibold"
+               [class.text-cobalt]="isActive(m.href)" [class.text-navy]="!isActive(m.href)" [attr.aria-current]="isActive(m.href) ? 'page' : null">
+              {{ m.label }}<span icon="chevron_right" [size]="20" class="text-muted"></span>
+            </a>
+          }
+        }
+        <a routerLink="/contact" class="btn btn-primary mt-6 w-100"><span icon="event_available" [size]="16"></span> Schedule a Briefing</a>
+        <p class="mt-6 stack-1 fs-small text-muted">
+          <a class="d-flex align-items-center gap-2 hover-navy" [href]="'mailto:' + site().company.email"><span icon="mail" [size]="16" class="text-cobalt"></span>{{ site().company.email }}</a>
+          <a class="d-flex align-items-center gap-2 hover-navy" [href]="'tel:' + site().company.phoneLandlineHref"><span icon="call" [size]="16" class="text-cobalt"></span>{{ site().company.phoneLandline }}</a>
+        </p>
+      </nav>
+    </div>
+  </div>
+}

@@ -1,0 +1,9 @@
+# SAMPLE ENTRY: draft: true keeps it out of the production site. Publish a testimonial only when
+# the client has approved the exact wording and attribution in writing, then set consentOnFile: true.
+quote: Sample testimonial text. Replace this with the client's approved wording before publishing it.
+name: Client name
+designation: Designation
+organisation: Organisation
+consentOnFile: false
+order: 1
+draft: true

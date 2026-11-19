@@ -1,0 +1,110 @@
+// Brand utilities that Bootstrap does not provide (brand colours, the type scale, vertical rhythm).
+// Layout, spacing, display, flex and grid come from Bootstrap's own utilities.
+@use 'sass:map';
+
+// ---- Colour ----
+$text-colors: (
+  "navy": $navy, "cobalt": $cobalt, "amber": $amber, "amber-soft": $amber-soft, "periwinkle": $periwinkle,
+  "ink": $ink, "ink-2": $ink-2, "muted": $muted-color, "white": #fff, "line-strong": $line-strong,
+);
+@each $name, $value in $text-colors {
+  .text-#{$name} { color: $value !important; }
+}
+.text-periwinkle-90 { color: rgba($periwinkle, 0.9) !important; }
+.text-periwinkle-80 { color: rgba($periwinkle, 0.8) !important; }
+.text-periwinkle-70 { color: rgba($periwinkle, 0.7) !important; }
+.text-periwinkle-60 { color: rgba($periwinkle, 0.6) !important; }
+.text-muted-80 { color: rgba($muted-color, 0.8) !important; }
+.text-error { color: #b91c1c !important; }
+
+$bg-colors: (
+  "navy": $navy, "navy-2": $navy-2, "navy-3": $navy-3, "cobalt": $cobalt, "amber": $amber, "mist": $mist, "canvas": $canvas, "white": #fff, "line": $line,
+);
+@each $name, $value in $bg-colors {
+  .bg-#{$name} { background-color: $value !important; }
+}
+.bg-white-10 { background-color: rgba(#fff, 0.1) !important; }
+.bg-navy-80 { background-color: rgba($navy, 0.8) !important; }
+.border-line { border-color: $line !important; }
+.border-line-strong { border-color: $line-strong !important; }
+.border-white-10 { border-color: rgba(#fff, 0.1) !important; }
+.border-amber { border-color: $amber !important; }
+.border-accent-left { border-left: 3px solid $amber !important; }
+
+// ---- Type scale (font-size + line-height, as in the original design) ----
+$type-scale: (
+  hero: (3.5rem, 1.143, -0.02em),
+  h1: (2.5rem, 1.2, -0.015em),
+  h2: (1.75rem, 1.286, normal),
+  h3: (1.25rem, 1.4, -0.01em),
+  lead: (1.125rem, 1.556, normal),
+  body: (0.9375rem, 1.6, normal),
+  small: (0.8125rem, 1.54, normal),
+  metric: (3rem, 1.083, -0.02em),
+  sm: (0.875rem, 1.428, normal),
+  base: (1rem, 1.5, normal),
+  lg: (1.125rem, 1.556, normal),
+  title: (2rem, 1.25, normal),
+  display: (2.25rem, 1.15, -0.025em),
+  quote: (1.375rem, 1.375, normal),
+  prose: (1.0625rem, 1.75, normal),
+);
+@mixin type($key) {
+  $v: map.get($type-scale, $key);
+  font-size: nth($v, 1);
+  line-height: nth($v, 2);
+  letter-spacing: nth($v, 3);
+}
+@each $key, $_ in $type-scale {
+  .fs-#{$key} { @include type($key); }
+}
+@each $bp in (md, lg) {
+  @include media-breakpoint-up($bp) {
+    @each $key in (hero, h1, h2, h3) {
+      .fs-#{$bp}-#{$key} { @include type($key); }
+    }
+  }
+}
+.font-serif { font-family: $font-family-serif !important; }
+.font-sans { font-family: $font-family-sans-serif !important; }
+.lh-none { line-height: 1 !important; }
+.lh-tight { line-height: 1.25 !important; }
+.lh-snug { line-height: 1.375 !important; }
+.lh-relaxed { line-height: 1.625 !important; }
+.tracking-tight { letter-spacing: -0.025em !important; }
+
+// ---- Vertical rhythm: .stack-N spaces direct children like the original space-y-N ----
+@each $key in (1, 1h, 2, 2h, 3, 4, 5, 6, 8, 10, 12, 16) {
+  .stack-#{$key} > * + * { margin-top: map.get($spacers, $key) !important; }
+}
+.divide-y > * + * { border-top: 1px solid $line; }
+
+// ---- Sizing ----
+.flex-1 { flex: 1 1 0% !important; }
+.min-w-0 { min-width: 0 !important; }
+.mw-sm { max-width: 24rem !important; }
+.mw-xl { max-width: 36rem !important; }
+.mw-2xl { max-width: 42rem !important; }
+.mw-3xl { max-width: 48rem !important; }
+.square-8 { width: 2rem; height: 2rem; }
+.square-9 { width: 2.25rem; height: 2.25rem; }
+.square-10 { width: 2.5rem; height: 2.5rem; }
+.square-11 { width: 2.75rem; height: 2.75rem; }
+.square-14 { width: 3.5rem; height: 3.5rem; }
+
+// ---- Effects ----
+.shadow-overlay { box-shadow: var(--shadow-overlay) !important; }
+.blur-backdrop { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+.scroll-mt-28 { scroll-margin-top: 4.75rem; }
+.scroll-mt-32 { scroll-margin-top: 5.75rem; }
+.sticky-panel { position: sticky; top: 8rem; }
+@include media-breakpoint-up(lg) {
+  .sticky-lg-panel { position: sticky; top: 12rem; }
+}
+.stretched::after { content: ''; position: absolute; inset: 0; z-index: 1; }
+.list-reset { list-style: none; padding: 0; margin: 0; }
+.no-marker { list-style: none; }
+.no-marker::-webkit-details-marker { display: none; }
+.no-scrollbar { scrollbar-width: none; }
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.cursor-pointer { cursor: pointer; }

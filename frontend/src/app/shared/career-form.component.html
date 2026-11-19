@@ -1,0 +1,84 @@
+<form [formGroup]="form" class="stack-6" [class.pb-6]="!status()" novalidate (ngSubmit)="submit()">
+  <div class="grid gap-6">
+    <div class="g-col-12 g-col-sm-6">
+      <label class="form-label" for="c-name">Full name *</label>
+      <input id="c-name" formControlName="name" maxlength="100" autocomplete="name" class="form-control" />
+      @if (err('name'); as e) { <p class="field-error">{{ e }}</p> }
+    </div>
+    <div class="g-col-12 g-col-sm-6">
+      <label class="form-label" for="c-email">Email *</label>
+      <input id="c-email" type="email" formControlName="email" maxlength="120" autocomplete="email" class="form-control" placeholder="name@example.com" />
+      @if (err('email'); as e) { <p class="field-error">{{ e }}</p> }
+    </div>
+  </div>
+  <div class="grid gap-6">
+    <div class="g-col-12 g-col-sm-6">
+      <label class="form-label" for="c-phone">Mobile *</label>
+      <input id="c-phone" type="tel" formControlName="phone" maxlength="20" autocomplete="tel" class="form-control" placeholder="+91" />
+      @if (err('phone'); as e) { <p class="field-error">{{ e }}</p> }
+    </div>
+    <div class="g-col-12 g-col-sm-6">
+      <label class="form-label" for="c-location">Current location *</label>
+      <input id="c-location" formControlName="location" maxlength="80" autocomplete="address-level2" class="form-control" placeholder="City" />
+      @if (err('location'); as e) { <p class="field-error">{{ e }}</p> }
+    </div>
+  </div>
+  <div>
+    <label class="form-label" for="c-position">Position applied for *</label>
+    <select id="c-position" formControlName="position" class="form-select">
+      @for (p of positions(); track p) { <option [value]="p">{{ p }}</option> }
+      <option [value]="general">{{ general }}</option>
+    </select>
+  </div>
+  <div class="grid gap-6">
+    <div class="g-col-12 g-col-sm-6">
+      <label class="form-label" for="c-qual">Highest qualification *</label>
+      <input id="c-qual" formControlName="qualification" maxlength="120" class="form-control" placeholder="e.g. CA, MBA (Finance), B.Tech Civil" />
+      @if (err('qualification'); as e) { <p class="field-error">{{ e }}</p> }
+    </div>
+    <div class="g-col-12 g-col-sm-6">
+      <label class="form-label" for="c-exp">Total experience (years) *</label>
+      <input id="c-exp" type="number" formControlName="experience" min="0" max="50" step="0.5" inputmode="decimal" class="form-control" />
+      @if (err('experience'); as e) { <p class="field-error">{{ e }}</p> }
+    </div>
+  </div>
+  <div>
+    <label class="form-label" for="c-linkedin">LinkedIn profile</label>
+    <input id="c-linkedin" type="url" formControlName="linkedin" maxlength="200" class="form-control" placeholder="https://www.linkedin.com/in/…" />
+    @if (err('linkedin'); as e) { <p class="field-error">{{ e }}</p> }
+  </div>
+  <div>
+    <label class="form-label" for="c-cover">Why Spine Advisory? <span class="fw-normal text-muted">(optional, up to 1,500 characters)</span></label>
+    <textarea id="c-cover" formControlName="message" rows="4" maxlength="1500" class="form-control"></textarea>
+  </div>
+  <div>
+    <span class="form-label d-block">CV / résumé *</span>
+    <label for="c-cv" class="drop d-flex cursor-pointer flex-column align-items-center justify-content-center gap-2 rounded px-6 py-8 text-center"
+           [class.over]="dragOver()" [class.invalid]="!!fileError()"
+           (dragenter)="$event.preventDefault(); dragOver.set(true)" (dragover)="$event.preventDefault(); dragOver.set(true)"
+           (dragleave)="dragOver.set(false)" (drop)="onDrop($event)">
+      <span icon="upload_file" [size]="32" class="text-cobalt"></span>
+      <span class="fs-sm fw-semibold text-navy">{{ fileLabel() }}</span>
+      <span class="fs-small text-muted">PDF, DOC or DOCX · max {{ maxMb }} MB</span>
+    </label>
+    <input #cvInput id="c-cv" type="file" class="visually-hidden" aria-describedby="c-cv-error"
+           accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+           (change)="pick(cvInput.files)" />
+    @if (fileError()) { <p id="c-cv-error" class="field-error" role="alert">{{ fileError() }}</p> }
+  </div>
+  <div>
+    <label class="d-flex align-items-start gap-3 fs-small text-ink-2">
+      <input type="checkbox" formControlName="consent" class="consent" />
+      <span>I agree that Spine Advisory may store and use my details and CV to assess my application and contact me about suitable roles, as described in the <a routerLink="/privacy" class="text-cobalt text-decoration-underline">privacy policy</a>. *</span>
+    </label>
+    @if (err('consent'); as e) { <p class="field-error">{{ e }}</p> }
+  </div>
+  <div class="d-none" aria-hidden="true"><label>Leave empty<input type="text" formControlName="company_website" tabindex="-1" autocomplete="off" /></label></div>
+  <div class="d-flex flex-column align-items-start justify-content-between gap-4 flex-sm-row align-items-sm-center">
+    <p class="d-flex align-items-center gap-2 fs-small text-muted"><span icon="lock" [size]="16"></span> Your application is handled in confidence.</p>
+    <button type="submit" class="btn btn-primary w-100 flex-shrink-0 text-nowrap w-sm-auto" [disabled]="sending()">
+      @if (sending()) { <span class="spinner spinner-sm" aria-hidden="true"></span> Submitting… } @else { Submit application <span icon="send" [size]="18"></span> }
+    </button>
+  </div>
+  @if (status(); as s) { <p class="form-status" [class.ok]="s.ok" [class.error]="!s.ok" role="status" aria-live="polite">{{ s.text }}</p> }
+</form>

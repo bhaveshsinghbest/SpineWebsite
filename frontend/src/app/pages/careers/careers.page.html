@@ -1,0 +1,116 @@
+@if (ok(); as p) {
+  <app-page-hero eyebrow="Careers at Spine Advisory" title="Build a career shaping India’s infrastructure" [content]="p.site.pages?.['careers']"
+    lead="We strive to attract the best talent and to create an exciting and caring environment full of growth opportunities." banner="railways" [crumbs]="crumbs">
+    <div class="d-flex flex-wrap gap-3 pt-3">
+      <a [routerLink]="[]" fragment="openings" class="btn btn-amber">View current openings <span icon="arrow_downward" [size]="18"></span></a>
+      <a [routerLink]="[]" fragment="apply" class="btn btn-ghost-dark">Submit your CV</a>
+    </div>
+  </app-page-hero>
+
+  <section class="py-20">
+    <div class="wrap stack-12">
+      <app-section-header eyebrow="Work culture" title="Why professionals join Spine" lead="A professional environment built on integrity and teamwork, where you grow by working on real mandates from day one." />
+      <div class="grid gap-6" revealGroup>
+        @for (c of culture; track c.title) {
+          <div class="g-col-12 g-col-sm-6 g-col-lg-3 card card-interactive p-7">
+            <span class="icon-tile bg-navy text-white"><span [icon]="c.icon" [size]="22"></span></span>
+            <h3 class="mt-5 card-title">{{ c.title }}</h3>
+            <p class="mt-2 fs-small text-muted">{{ c.text }}</p>
+          </div>
+        }
+      </div>
+    </div>
+  </section>
+
+  <section id="openings" class="scroll-mt-32 border-top border-bottom bg-white py-20">
+    <div class="wrap stack-10">
+      <div class="d-flex flex-column justify-content-between gap-4 flex-md-row align-items-md-end">
+        <app-section-header eyebrow="Current openings" [title]="heading()" />
+        @if (p.data.length) { <p class="fs-small text-muted">Select a role to see responsibilities and qualifications.</p> }
+      </div>
+
+      @if (p.data.length) {
+        <ul class="stack-4">
+          @for (j of p.data; track j.id; let first = $first) {
+            <li [id]="j.id" class="scroll-mt-32" reveal>
+              <details class="card overflow-hidden" [open]="first">
+                <summary class="no-marker d-flex flex-column gap-4 p-6 flex-md-row align-items-md-center justify-content-md-between">
+                  <div>
+                    <div class="d-flex flex-wrap align-items-center gap-2">
+                      <span class="tag bg-mist text-cobalt">{{ j.department }}</span>
+                      <span class="tag bg-mist text-ink-2">{{ j.employmentType }}</span>
+                    </div>
+                    <h3 class="mt-3 card-title">{{ j.title }}</h3>
+                    <dl class="mt-2 d-flex flex-wrap column-gap-6 row-gap-1 fs-small text-muted mb-0">
+                      <div class="d-flex align-items-center gap-1h"><dt class="visually-hidden">Location</dt><span icon="location_on" [size]="16" class="text-cobalt"></span><dd class="mb-0">{{ j.location }}</dd></div>
+                      <div class="d-flex align-items-center gap-1h"><dt class="visually-hidden">Experience</dt><span icon="work" [size]="16" class="text-cobalt"></span><dd class="mb-0">{{ j.experience }}</dd></div>
+                      <div class="d-flex align-items-center gap-1h"><dt class="visually-hidden">Posted</dt><span icon="calendar_today" [size]="16" class="text-cobalt"></span><dd class="mb-0">Posted {{ fmt(j.posted) }}</dd></div>
+                      @if (j.closes) {
+                        <div class="d-flex align-items-center gap-1h"><dt class="visually-hidden">Closes</dt><span icon="schedule" [size]="16" class="text-cobalt"></span><dd class="mb-0">Apply by {{ fmt(j.closes) }}</dd></div>
+                      }
+                    </dl>
+                  </div>
+                  <span class="d-inline-flex align-items-center gap-1 fs-sm fw-semibold text-cobalt">
+                    <span class="when-closed">View details</span><span class="when-open">Hide details</span>
+                    <span icon="expand_more" [size]="20" class="open-rotate"></span>
+                  </span>
+                </summary>
+                <div class="grid gap-8 border-top p-6">
+                  @if (j.summary) { <p class="g-col-12 text-ink-2">{{ j.summary }}</p> }
+                  <div class="g-col-12 g-col-md-6">
+                    <h4 class="eyebrow text-muted">Job responsibilities</h4>
+                    <ul class="mt-3 stack-2">
+                      @for (r of j.responsibilities; track r) { <li class="d-flex align-items-start gap-2 fs-small text-ink-2"><span icon="check_circle" [size]="16" class="mt-0h text-cobalt"></span>{{ r }}</li> }
+                    </ul>
+                  </div>
+                  <div class="g-col-12 g-col-md-6">
+                    <h4 class="eyebrow text-muted">Qualifications</h4>
+                    <ul class="mt-3 stack-2">
+                      @for (q of j.qualifications; track q) { <li class="d-flex align-items-start gap-2 fs-small text-ink-2"><span icon="school" [size]="16" class="mt-0h text-cobalt"></span>{{ q }}</li> }
+                    </ul>
+                  </div>
+                  <div class="g-col-12">
+                    <a [routerLink]="[]" fragment="apply" class="btn btn-primary" (click)="apply(j.title)">Apply for this role <span icon="arrow_forward" [size]="18"></span></a>
+                  </div>
+                </div>
+              </details>
+            </li>
+          }
+        </ul>
+      } @else {
+        <div class="card d-flex flex-column align-items-center gap-4 p-10 text-center">
+          <span class="icon-tile square-14 bg-mist text-cobalt"><span icon="work" [size]="28"></span></span>
+          <p class="mw-xl text-muted">There are no open positions at the moment. We are always glad to hear from talented Chartered Accountants, MBAs, engineers and technologists — submit your CV and we will contact you when a suitable role opens.</p>
+          <a [routerLink]="[]" fragment="apply" class="btn btn-primary">Submit your CV for future opportunities</a>
+        </div>
+      }
+    </div>
+  </section>
+
+  <section id="apply" class="scroll-mt-32 bg-mist py-20">
+    <div class="wrap grid gap-12 align-items-start">
+      <div class="g-col-12 g-col-lg-5 stack-8">
+        <app-section-header eyebrow="How to apply" title="Submit your application" lead="Apply for a current opening, or send your CV for future opportunities." />
+        <ol class="stack-5">
+          @for (s of steps; track s.title; let i = $index) {
+            <li class="d-flex gap-4">
+              <span class="icon-tile square-9 bg-navy font-serif fw-semibold text-amber-soft">{{ i + 1 }}</span>
+              <span><span class="d-block fw-semibold text-ink">{{ s.title }}</span><span class="fs-small text-muted">{{ s.text }}</span></span>
+            </li>
+          }
+        </ol>
+        <p class="rounded border bg-white p-5 fs-small text-ink-2">
+          Prefer email? Send your CV to <a class="fw-semibold text-cobalt" [href]="'mailto:' + p.site.company.careersEmail + '?subject=Job%20application'">{{ p.site.company.careersEmail }}</a> with the position in the subject line.
+        </p>
+        <p class="fs-small text-muted">{{ p.site.company.legalName }} · {{ headAddress() }}</p>
+      </div>
+      <div class="g-col-12 g-col-lg-7 card p-7 p-md-10">
+        <h2 class="serif-h2">Application form</h2>
+        <p class="mb-8 mt-2 text-muted">Fields marked * are required.</p>
+        <app-career-form [positions]="p.data.map(jobTitle)" [email]="p.site.company.careersEmail" />
+      </div>
+    </div>
+  </section>
+} @else {
+  <app-page-fallback [page]="page()" />
+}

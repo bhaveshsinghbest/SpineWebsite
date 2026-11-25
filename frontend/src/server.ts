@@ -14,8 +14,17 @@ const browserDistFolder = join(import.meta.dirname, '../browser');
 const API = (process.env['API_INTERNAL_URL'] || 'http://localhost:4000').replace(/\/$/, '');
 const isProd = process.env['NODE_ENV'] === 'production';
 
+// Host names the site answers to: the build-time list in angular.json, plus NG_ALLOWED_HOSTS (comma-separated)
+// and, on Render, the service's own address (RENDER_EXTERNAL_HOSTNAME, set by Render automatically).
+const allowedHosts = [
+  ...(process.env['NG_ALLOWED_HOSTS'] ?? '').split(','),
+  process.env['RENDER_EXTERNAL_HOSTNAME'] ?? '',
+]
+  .map((h) => h.trim().replace(/^https?:\/\//i, '').replace(/[/:].*$/, '').toLowerCase())
+  .filter(Boolean);
+
 const app = express();
-const angularApp = new AngularNodeAppEngine();
+const angularApp = new AngularNodeAppEngine({ allowedHosts });
 app.disable('x-powered-by');
 app.set('trust proxy', Number(process.env['TRUST_PROXY'] ?? 1));
 
@@ -123,6 +132,7 @@ if (isMainModule(import.meta.url) || process.env['pm_id']) {
   app.listen(port, (error) => {
     if (error) throw error;
     console.log(`Spine Advisory website listening on http://localhost:${port} (API: ${API})`);
+    console.log(`Allowed host names (besides angular.json): ${allowedHosts.join(', ') || '(none)'}`);
   });
 }
 

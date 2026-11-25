@@ -1,4 +1,5 @@
 // Environment configuration, validated once at startup. The process refuses to start with invalid settings.
+import { accessSync, constants, mkdirSync } from 'node:fs';
 import path from 'node:path';
 import { z } from 'zod';
 
@@ -50,13 +51,38 @@ if (!parsed.success) {
 }
 
 const e = parsed.data;
+
+/**
+ * In production the upload folder must be writable. On a host without a persistent disk (e.g. Render's
+ * Free plan with UPLOAD_DIR=/var/data/uploads) the folder cannot be created, which used to crash the
+ * content seed and every upload. Fall back to the app's own ./uploads folder and say so in the log;
+ * files there survive only until the next restart.
+ */
+function resolveUploadDir(dir: string): string {
+  const resolved = path.resolve(dir);
+  if (e.NODE_ENV !== 'production') return resolved;
+  try {
+    mkdirSync(resolved, { recursive: true });
+    accessSync(resolved, constants.W_OK);
+    return resolved;
+  } catch (err) {
+    const fallback = path.resolve('uploads');
+    const reason = (err as NodeJS.ErrnoException).code ?? String(err);
+    console.warn(
+      `WARNING: UPLOAD_DIR "${dir}" is not writable (${reason}). Using ${fallback} instead; files saved there are lost when the service restarts. Attach a persistent disk at that path, or remove UPLOAD_DIR.`,
+    );
+    return fallback;
+  }
+}
+const uploadDir = resolveUploadDir(e.UPLOAD_DIR);
+
 export const env = {
   ...e,
   isProd: e.NODE_ENV === 'production',
   isTest: e.NODE_ENV === 'test',
   cookieSecure: e.NODE_ENV === 'production' || e.COOKIE_SECURE,
   siteUrl: e.PUBLIC_SITE_URL.replace(/\/$/, ''),
-  uploadDir: path.resolve(e.UPLOAD_DIR),
-  publicUploadDir: path.resolve(e.UPLOAD_DIR, 'public'),
-  privateUploadDir: path.resolve(e.UPLOAD_DIR, 'private'),
+  uploadDir,
+  publicUploadDir: path.join(uploadDir, 'public'),
+  privateUploadDir: path.join(uploadDir, 'private'),
 };

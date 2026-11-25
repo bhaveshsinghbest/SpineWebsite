@@ -2,7 +2,10 @@
 // - The website listens on $PORT (the port Render sends traffic to) and proxies /api and /uploads to the API.
 // - The API listens privately on 127.0.0.1:$API_PORT (default 4000) and is never exposed directly.
 // If either process stops, the other is stopped too and this script exits, so Render restarts the service.
-import { spawn } from 'node:child_process';
+// Before starting, it prepares the database: applies migrations and, on a new empty database, loads the
+// website content and creates the admin (npm run db:seed, which is safe to run on every start). This works
+// on every Render plan, including Free, which has no Shell or Pre-Deploy Command.
+import { spawn, spawnSync } from 'node:child_process';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -26,6 +29,16 @@ function stop(code) {
   for (const c of children) if (c.exitCode === null) c.kill('SIGTERM');
   setTimeout(() => process.exit(code), 5000).unref();
   Promise.all(children.map((c) => (c.exitCode !== null ? null : new Promise((r) => c.once('exit', r))))).then(() => process.exit(code));
+}
+
+console.log('[render-start] Preparing the database (migrations, then first-time content)…');
+const setupOpts = { cwd: join(root, 'backend'), stdio: 'inherit' };
+const setup = process.platform === 'win32'
+  ? spawnSync('npm run db:seed', { ...setupOpts, shell: true }) // npm is a .cmd on Windows (local testing)
+  : spawnSync('npm', ['run', 'db:seed'], setupOpts);
+if (setup.status !== 0) {
+  console.error(`[render-start] Database preparation failed (${setup.error?.message ?? `exit code ${setup.status}`}); not starting.`);
+  process.exit(1);
 }
 
 process.on('SIGTERM', () => stop(0));

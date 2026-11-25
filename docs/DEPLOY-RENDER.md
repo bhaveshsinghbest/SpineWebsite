@@ -84,16 +84,22 @@ The local repository has no commits yet.
    - Generate `VISITOR_HASH_SECRET` with `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`.
    - `NG_ALLOWED_HOSTS` is the host name only, without `https://`. The site refuses requests for any other host name.
    - Don't set `PORT`, `API_INTERNAL_URL` or `TRUST_PROXY`. Render and `render-start.mjs` set them.
+   - `UPLOAD_DIR=/var/data/uploads` only works with the persistent disk below. Without a disk (Free plan), leave it out; if it is set anyway, the API logs a warning and uses its own `backend/uploads` folder, which is emptied on every restart.
+   - First deployment: also add `SEED_ADMIN_EMAIL` and `SEED_ADMIN_PASSWORD` (see Step 4). Remove them once you have signed in.
    - Email (Forgot Password and notification emails) can be added now or later: `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `SMTP_USER`, `SMTP_PASS`, `MAIL_FROM`. Without them, emails are only written to the log.
 
 4. Open **Advanced** and set:
    - **Health Check Path**: `/api/health`. This checks the website, the API and the database together.
-   - **Pre-Deploy Command**: `npm --prefix backend run db:migrate`. It applies database migrations before each release.
+   - **Pre-Deploy Command**: optional. `scripts/render-start.mjs` applies migrations (and, on an empty database, loads the content) every time the service starts, so this also works on the Free plan, which has no Pre-Deploy Command.
    - **Disk**: click **Add Disk**. Name it `uploads`, set Mount Path to `/var/data` and Size to `1` GB.
    - **Auto-Deploy**: *On Commit* (each `git push` to `main` deploys).
 5. Click **Create Web Service**. The first build takes about 5–10 minutes. Watch the **Logs** tab. It is done when it shows `Your service is live`.
 
 ## Step 4: Load the website content and create the admin (first deployment only)
+
+This now happens automatically: on start, `scripts/render-start.mjs` runs `npm run db:seed`, which loads the content into an empty database and creates the `admin` account from `SEED_ADMIN_EMAIL` / `SEED_ADMIN_PASSWORD` (Step 3). The log shows `Seeded website content →` and `Created the administrator account`. On later starts it prints `Website content already present` and changes nothing. If you did not set `SEED_ADMIN_PASSWORD`, a random password is printed in the log once; sign in with it and change it.
+
+To run it by hand instead (paid plans only):
 
 1. On the service page, open the **Shell** tab.
 2. Run the command below, replacing the password with your own. It must be at least 12 characters, with upper-case and lower-case letters and a number.
@@ -154,5 +160,7 @@ git push
 | Page shows *"URL with hostname … is not allowed"* | Add that host name to `NG_ALLOWED_HOSTS`. |
 | Signing in does nothing / logs out at once | `PUBLIC_SITE_URL` must be exactly the address in the browser, with `https://`. |
 | `[render-start] API stopped …` | Read the lines just above it; usually a database setting. |
+| Site shows "undefined" in the tab title and an empty header | The database has tables but no content. Check the log for `Seeded website content →`; if `[render-start] Database preparation failed` appears, read the error above it. |
+| `WARNING: UPLOAD_DIR "/var/data/uploads" is not writable` | No disk is attached. Remove `UPLOAD_DIR`, or add the disk (Step 3). |
 | Build fails with `tsc: not found` or `ng: not found` | Build Command must be `npm run render:build`, which installs build tools with `--include=dev`. |
 | Lost admin password and no email set up | Shell: `npm --prefix backend run admin:create -- --username admin` prints a new password. |
